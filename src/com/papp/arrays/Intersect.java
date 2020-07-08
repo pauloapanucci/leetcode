@@ -2,8 +2,9 @@ package com.papp.arrays;
 
 import util.Utils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /*
 Given two arrays, write a function to compute their intersection.
@@ -28,25 +29,31 @@ What if elements of nums2 are stored on disk, and the memory is limited such tha
 */
 public class Intersect {
     public static int[] intersect(int[] nums1, int[] nums2) {
-        Set<Integer> set1, set1Copy, set2;
-        if(nums1.length > nums2.length){
-            set1 = Arrays.stream(nums1).boxed().collect(Collectors.toSet());
-            set1Copy = Arrays.stream(nums1).boxed().collect(Collectors.toSet());
-            set2 = Arrays.stream(nums2).boxed().collect(Collectors.toSet());
-        } else {
-            set1 = Arrays.stream(nums2).boxed().collect(Collectors.toSet());
-            set1Copy = Arrays.stream(nums2).boxed().collect(Collectors.toSet());
-            set2 = Arrays.stream(nums1).boxed().collect(Collectors.toSet());
+        HashMap<Integer, Integer> firstArrayMap = new HashMap<>();
+        for (int i = 0; i < nums1.length; i++) {
+            Integer num = firstArrayMap.get(nums1[i]);
+            if(num == null) {
+                firstArrayMap.put(nums1[i], 1);
+            } else {
+                firstArrayMap.put(nums1[i], num + 1);
+            }
         }
 
-        set1.removeAll(set2);
-        set1Copy.removeAll(set1);
-        int[] res = new int[set1Copy.size()];
-        Iterator<Integer> set1CopyIterator = set1Copy.iterator();
-        for (int i = 0; i < set1Copy.size(); i++) {
-            res[i] = set1CopyIterator.next();
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < nums2.length; i++) {
+            Integer num = firstArrayMap.get(nums2[i]);
+            if(num != null) {
+                res.add(nums2[i]);
+                if(num == 1) firstArrayMap.remove(nums2[i]);
+                else firstArrayMap.put(nums2[i], num - 1);
+            }
         }
-        return res;
+
+        int[] resArray = new int[res.size()];
+        for (int i = 0; i < res.size(); i++) {
+            resArray[i] = res.get(i);
+        }
+        return resArray;
     }
 
     public static void main(String[] args) {
@@ -57,6 +64,11 @@ public class Intersect {
 
         nums1 = new int[]{4,9,5};
         nums2 = new int[]{9,4,9,8,4};
+        arr = intersect(nums1, nums2);
+        Utils.printArray(arr);
+
+        nums1 = new int[]{1,2};
+        nums2 = new int[]{1, 1};
         arr = intersect(nums1, nums2);
         Utils.printArray(arr);
     }
